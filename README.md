@@ -1,4 +1,4 @@
-# claude-bbot-skill
+# skilled-bbot
 
 A Claude Code skill for running BBOT (Bighuge BLS OSINT Tool) scans during bug bounty reconnaissance.
 
@@ -80,7 +80,7 @@ bbot/
 **1. Clone the repo**
 
 ```bash
-git clone git@github.com:shart123456/claude-bbot-skill.git
+git clone git@github.com:shart123456/skilled-bbot.git
 ```
 
 **2. Place it in your Claude Code skills directory**
