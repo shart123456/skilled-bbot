@@ -151,6 +151,84 @@ Program Policy?
 
 ---
 
+## Pre-Scan: Scope Extraction
+
+Before running any scan, extract in-scope and out-of-scope from the bug bounty program page.
+
+```bash
+# Set variables from program policy
+COMPANY="acme"
+TARGET="acme.com"                          # Primary in-scope domain
+
+# Build blacklist from out-of-scope list
+BLACKLIST="admin.acme.com staging.acme.com legacy.acme.com"
+
+# Wildcard scope — use quotes
+# bbot -t "*.acme.com" --strict-scope
+
+# Single domain scope
+# bbot -t acme.com
+
+# Multiple explicit targets
+# bbot -t acme.com api.acme.com "*.acme.io"
+
+# Dry run to confirm scope before live scan
+bbot -t $TARGET \
+     --blacklist $BLACKLIST \
+     -f subdomain-enum passive \
+     --dry-run
+```
+
+**Scope decision:**
+| Program says | BBOT flags to use |
+|---|---|
+| Passive only | `-f passive` |
+| No automated scanning | `-f passive` (API sources only) |
+| Active allowed | `-f subdomain-enum web-basic safe` |
+| Broad scope / full testing | `-f subdomain-enum web-thorough -ef deadly` |
+| Everything | `-p kitchen-sink -ef deadly` |
+
+---
+
+## Post-Scan: Reading Results
+
+Run these immediately after any scan completes:
+
+```bash
+SCAN_DIR=~/bug_bounty/$COMPANY/bbot_scans/
+LATEST=$(ls -td $SCAN_DIR/*/ | head -1)
+
+# Quick summary
+echo "Subdomains : $(cat $LATEST/subdomains.txt 2>/dev/null | wc -l)"
+echo "URLs       : $(jq -r 'select(.type=="URL")' $LATEST/output.ndjson 2>/dev/null | wc -l)"
+echo "Open ports : $(jq -r 'select(.type=="OPEN_TCP_PORT")' $LATEST/output.ndjson 2>/dev/null | wc -l)"
+echo "Findings   : $(jq -r 'select(.type=="FINDING")' $LATEST/output.ndjson 2>/dev/null | wc -l)"
+echo "Vulns      : $(jq -r 'select(.type=="VULNERABILITY")' $LATEST/output.ndjson 2>/dev/null | wc -l)"
+
+# Critical and high vulnerabilities first
+jq -r 'select(.type=="VULNERABILITY") |
+  select(.data.severity=="CRITICAL" or .data.severity=="HIGH") |
+  "\(.data.severity): \(.data.name // .module) @ \(.data.host // .data.url // "")"' \
+  $LATEST/output.ndjson 2>/dev/null | sort -u
+
+# All findings
+jq -r 'select(.type=="FINDING") | "\(.module): \(.data)"' \
+  $LATEST/output.ndjson 2>/dev/null | sort -u
+
+# Technologies detected
+jq -r 'select(.type=="TECHNOLOGY") | .data' \
+  $LATEST/output.ndjson 2>/dev/null | sort -u
+
+# Storage buckets
+jq -r 'select(.type=="STORAGE_BUCKET") | .data' \
+  $LATEST/output.ndjson 2>/dev/null
+
+# Event type distribution (what the scan found overall)
+jq -r '.type' $LATEST/output.ndjson 2>/dev/null | sort | uniq -c | sort -rn
+```
+
+---
+
 ## Safety Controls
 
 ```bash
@@ -175,24 +253,26 @@ bbot -t example.com -f passive
 
 ## Supplementary Resources
 
-- Full module reference: `read /home/shartlieba/.claude/skills/bbot/CLAUDE.md`
-- DNS modules detail: `read /home/shartlieba/.claude/skills/bbot/modules/dns-subdomain-enum.md`
-- Port scanning detail: `read /home/shartlieba/.claude/skills/bbot/modules/port-scanning.md`
-- Web scanning detail: `read /home/shartlieba/.claude/skills/bbot/modules/web-scanning.md`
-- Vuln scanning detail: `read /home/shartlieba/.claude/skills/bbot/modules/vulnerability-scanning.md`
-- Cloud enumeration detail: `read /home/shartlieba/.claude/skills/bbot/modules/cloud-enumeration.md`
-- Code repository detail: `read /home/shartlieba/.claude/skills/bbot/modules/code-repository.md`
-- Email/credentials detail: `read /home/shartlieba/.claude/skills/bbot/modules/email-credentials.md`
-- IP intelligence detail: `read /home/shartlieba/.claude/skills/bbot/modules/ip-intelligence.md`
-- Output modules detail: `read /home/shartlieba/.claude/skills/bbot/modules/output-modules.md`
-- Passive recon workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/passive-recon.md`
-- Safe active workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/safe-active-recon.md`
-- Subdomain takeover workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/subdomain-takeover.md`
-- Cloud hunt workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/cloud-hunt.md`
-- Vuln scan workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/vuln-scan.md`
-- Web app audit workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/web-app-audit.md`
-- Code leak hunt workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/code-leak-hunt.md`
-- Full engagement workflow: `read /home/shartlieba/.claude/skills/bbot/workflows/full-engagement.md`
+All paths are relative to the skill root directory (wherever this skill is installed):
+
+- Full module reference: `CLAUDE.md`
+- DNS modules detail: `modules/dns-subdomain-enum.md`
+- Port scanning detail: `modules/port-scanning.md`
+- Web scanning detail: `modules/web-scanning.md`
+- Vuln scanning detail: `modules/vulnerability-scanning.md`
+- Cloud enumeration detail: `modules/cloud-enumeration.md`
+- Code repository detail: `modules/code-repository.md`
+- Email/credentials detail: `modules/email-credentials.md`
+- IP intelligence detail: `modules/ip-intelligence.md`
+- Output modules detail: `modules/output-modules.md`
+- Passive recon workflow: `workflows/passive-recon.md`
+- Safe active workflow: `workflows/safe-active-recon.md`
+- Subdomain takeover workflow: `workflows/subdomain-takeover.md`
+- Cloud hunt workflow: `workflows/cloud-hunt.md`
+- Vuln scan workflow: `workflows/vuln-scan.md`
+- Web app audit workflow: `workflows/web-app-audit.md`
+- Code leak hunt workflow: `workflows/code-leak-hunt.md`
+- Full engagement workflow: `workflows/full-engagement.md`
 
 ---
 
