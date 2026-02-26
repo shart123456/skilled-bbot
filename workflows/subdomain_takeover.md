@@ -1,3 +1,16 @@
+---
+name: Subdomain Takeover Detection
+description: Detect dangling CNAME chains and DNS zone takeover candidates using the baddns module suite
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: workflow file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # Workflow: Subdomain Takeover Detection
 
 **Risk Level:** Low — checking CNAME targets, no exploitation

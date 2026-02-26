@@ -1,3 +1,16 @@
+---
+name: Email and Credential Discovery Modules
+description: Complete reference for email enumeration, credential exposure, and authentication intelligence modules
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: documentation file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # BBot Email & Credential Discovery Modules
 
 Complete reference for email enumeration, credential exposure, and authentication intelligence modules.

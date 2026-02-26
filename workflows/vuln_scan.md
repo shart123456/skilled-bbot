@@ -1,3 +1,16 @@
+---
+name: Vulnerability Scanning
+description: Nuclei, badsecrets, retirejs, and baddns against live hosts for focused vulnerability detection
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: workflow file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # Workflow: Vulnerability Scanning
 
 **Risk Level:** Medium to High (nuclei/ffuf are aggressive)

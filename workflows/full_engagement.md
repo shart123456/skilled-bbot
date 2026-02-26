@@ -1,3 +1,16 @@
+---
+name: Full Bug Bounty Engagement
+description: Comprehensive 8-phase engagement covering passive intel through visual survey with all safe-active modules
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: workflow file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # Workflow: Full Bug Bounty Engagement
 
 **Risk Level:** Medium-High (excludes deadly modules by default)

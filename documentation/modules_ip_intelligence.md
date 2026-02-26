@@ -1,3 +1,16 @@
+---
+name: IP Intelligence and Technology Detection Modules
+description: Complete reference for IP geolocation, WAF detection, technology fingerprinting, and utility modules
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: documentation file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # BBot IP Intelligence & Technology Detection Modules
 
 Complete reference for IP geolocation, WAF detection, technology fingerprinting, and utility modules.

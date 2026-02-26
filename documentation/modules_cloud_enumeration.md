@@ -1,3 +1,16 @@
+---
+name: Cloud Enumeration Modules
+description: Complete reference for cloud provider asset discovery, storage bucket enumeration, and cloud infrastructure modules
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: documentation file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # BBot Cloud & Storage Enumeration Modules
 
 Complete reference for cloud provider asset discovery, storage bucket enumeration, and cloud infrastructure modules.

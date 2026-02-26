@@ -1,3 +1,16 @@
+---
+name: Safe Active Reconnaissance
+description: Light active scanning — subdomain brute force, HTTP probing, port scan, and safe vuln checks
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: workflow file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # Workflow: Safe Active Reconnaissance
 
 **Risk Level:** Low — direct contact with target but non-destructive

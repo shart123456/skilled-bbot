@@ -1,4 +1,17 @@
-# BBOT Complete Reference — CLAUDE.md
+---
+name: BBOT Technical Reference
+description: Complete technical reference for BBOT v2.8.2 covering architecture, event types, configuration, CLI usage, and output processing
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: documentation file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
+# BBOT Complete Reference
 
 BBOT (Bighuge BLS OSINT Tool) v2.8.2 — complete technical reference for all modules, configuration options, event types, and advanced usage patterns.
 
@@ -467,3 +480,21 @@ urlscan.py          vhost.py            viewdns.py
 virustotal.py       wafw00f.py          wayback.py
 wpscan.py
 ```
+
+---
+
+## Supplementary Resources
+
+Module category deep-dives are located in `documentation/`:
+
+| File | Content |
+|---|---|
+| `documentation/modules_cloud_enumeration.md` | Cloud storage buckets, Azure tenant, cloud providers |
+| `documentation/modules_code_repository.md` | GitHub, GitLab, Postman, Docker, mobile apps |
+| `documentation/modules_dns_subdomain_enum.md` | All passive and active DNS/subdomain modules |
+| `documentation/modules_email_credentials.md` | Email enumeration and credential discovery |
+| `documentation/modules_ip_intelligence.md` | IP geolocation, WAF detection, technology fingerprinting |
+| `documentation/modules_output_modules.md` | Output formats, database integrations, alerting |
+| `documentation/modules_port_scanning.md` | Port scanning, SSL cert, service fingerprinting |
+| `documentation/modules_vulnerability_scanning.md` | Nuclei, badsecrets, baddns, wpscan, retirejs |
+| `documentation/modules_web_scanning.md` | httpx, ffuf, paramminer, web fuzzing modules |

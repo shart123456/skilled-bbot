@@ -1,3 +1,16 @@
+---
+name: Code Leak and Secret Hunt
+description: Discover leaked source code and hardcoded secrets via GitHub, GitLab, Postman, and Trufflehog
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: workflow file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # Workflow: Code Leak & Secret Hunt
 
 **Risk Level:** Low — passive queries to third-party services and repos

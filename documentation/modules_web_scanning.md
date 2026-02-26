@@ -1,3 +1,16 @@
+---
+name: Web Scanning and Fuzzing Modules
+description: Complete reference for all web scanning, fuzzing, parameter mining, and web discovery modules
+license: MIT
+compatibility: MONK TAO skills system, Claude Code
+metadata:
+  author: shart123456
+  usage: documentation file for MONK TAO skills system
+  version: 0.1.0
+  related files: ""
+  creation date: 2026-02-26
+  last modified: 2026-02-26
+---
 # BBot Web Scanning & Fuzzing Modules
 
 Complete reference for all web scanning, fuzzing, parameter mining, and web discovery modules.
