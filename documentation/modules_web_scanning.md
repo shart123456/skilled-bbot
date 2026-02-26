@@ -553,6 +553,53 @@ bbot -t example.com -m httpx code_repository
 
 ---
 
+## lightfuzz
+
+**Description:** Lightweight parameter fuzzer that tests discovered web parameters for common injection vulnerabilities. Unlike `ffuf` which discovers paths by brute-force wordlist, `lightfuzz` tests *parameters you've already found* for injection vulnerabilities.
+
+**Flags:** `active`, `aggressive`
+**Watched Events:** `URL`, `WEB_PARAMETER`
+**Produced Events:** `FINDING`, `VULNERABILITY`
+
+**Options:**
+| Option | Default | Description |
+|---|---|---|
+| `severity` | `"HIGH"` | Minimum severity to report (`INFO`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) |
+| `force_common_params` | `False` | Also test common parameter names even if not discovered |
+
+**Vulnerability Types Tested:**
+- SQL Injection (error-based detection)
+- Cross-Site Scripting (XSS) — reflection detection
+- Path Traversal (`../`, `..%2F`, etc.)
+- Server-Side Template Injection (SSTI) — math expression detection
+- Command Injection (timing/error-based)
+
+```bash
+# Basic lightfuzz — tests parameters discovered by httpx/excavate
+bbot -t example.com -m httpx lightfuzz
+
+# Pipeline: discover parameters first, then fuzz
+bbot -t example.com \
+     -m httpx paramminer_getparams lightfuzz \
+     -c web_requests_per_second=5 \
+     -om json \
+     -o ~/bug_bounty/acme/bbot_scans/ \
+     -n acme_param_fuzz
+
+# Lower severity threshold to see all findings
+bbot -t example.com -m httpx lightfuzz \
+     -c modules.lightfuzz.severity=LOW
+```
+
+**Contrast with `ffuf`:**
+- `ffuf` discovers **paths** via wordlist brute-force (what endpoints exist?)
+- `lightfuzz` tests **parameters** for injection (what can you inject into known endpoints?)
+- They are complementary: `ffuf` → finds paths → `paramminer` → finds params → `lightfuzz` → tests injection
+
+> **Warning:** `lightfuzz` is flagged `aggressive` — it sends potentially malicious payloads to the target. Only use when program policy explicitly allows active vulnerability testing.
+
+---
+
 ## Web Scanning Workflow Combinations
 
 ### Basic Safe Web Scan

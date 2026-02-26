@@ -123,6 +123,66 @@ bbot -t example.com -m bucket_microsoft \
 
 ---
 
+## Azure Blob Storage Deep Dive (bucket_microsoft)
+
+> **Module alias note:** In BBOT, `bucket_microsoft` is the canonical module name for Azure Blob Storage enumeration. The alias `bucket_azure` also works in some versions but `bucket_microsoft` is preferred and always available.
+
+### Azure Blob Storage Access Tiers
+
+Azure Blob Storage containers have three public access levels:
+
+| Access Level | Container | Blobs | Risk |
+|---|---|---|---|
+| **Private** | No | No | None — requires SAS token or auth |
+| **Blob** | No | Yes | Medium — can read individual blobs if URL known |
+| **Container** | Yes | Yes | High — can list all blobs + read them |
+
+BBOT's `bucket_microsoft` module detects all three tiers and flags Container-level as a HIGH finding.
+
+### Scan Command (Azure Deep Dive)
+
+```bash
+bbot -t example.com \
+     -m azure_realm azure_tenant bucket_microsoft \
+     -c modules.bucket_microsoft.permutations=true \
+     -om json web_report \
+     -o ~/bug_bounty/acme/bbot_scans/ \
+     -n acme_azure_deep
+```
+
+### Manual Verification After BBOT
+
+```bash
+# Test container-level public access (list all blobs)
+ACCOUNT="companyaccount"
+CONTAINER="public"
+
+curl -s "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}?restype=container&comp=list" | \
+     python3 -m xml.dom.minidom
+
+# Test blob-level access (read specific file if URL known)
+curl -sI "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}/config.json"
+
+# Download a specific blob
+curl -s "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}/config.json" -o config.json
+
+# List containers in a storage account (if full public access)
+curl -s "https://${ACCOUNT}.blob.core.windows.net/?comp=list" | python3 -m xml.dom.minidom
+```
+
+### Azure Storage URL Pattern
+
+```
+https://[storage-account].blob.core.windows.net/[container]/[blob-path]
+
+Examples:
+  https://acmecorp.blob.core.windows.net/
+  https://acme-backup.blob.core.windows.net/data/
+  https://acmeassets.blob.core.windows.net/images/logo.png
+```
+
+---
+
 ## bucket_firebase
 
 **Description:** Discovers and tests Firebase Realtime Database and Cloud Firestore instances related to the target. Firebase databases with open access rules can expose entire application data.

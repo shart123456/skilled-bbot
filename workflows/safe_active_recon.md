@@ -22,7 +22,7 @@ metadata:
 
 Safe active reconnaissance makes direct HTTP/TCP connections to the target to discover services, validate subdomains, probe web applications, and identify technologies. All modules in this workflow are non-destructive and won't trigger WAF blocks or create server errors.
 
-**Modules Used:** httpx, sslcert, portscan, robots, securitytxt, social, oauth, ntlm, badsecrets, baddns, ironsight, gowitness, dnsbrute, dnsbrute_mutations
+**Modules Used:** httpx, sslcert, portscan, robots, securitytxt, social, oauth, ntlm, badsecrets, baddns, ironsight, wappalyzer, gowitness, dnsbrute, dnsbrute_mutations, dnscommonsrv, dnsbimi, dnscaa, dnstlsrpt, asn, cloudcheck, ipneighbor, ip2location, fingerprintx
 
 ---
 
@@ -33,15 +33,53 @@ COMPANY="acme"
 TARGET="acme.com"
 OUT_OF_SCOPE="admin.acme.com staging.acme.com"
 
-# Step 1: Passive discovery + active brute force
+# Step 1: Passive discovery + active brute force + DNS record enumeration
 bbot -t $TARGET \
      -f subdomain-enum \
+     -m dnscommonsrv dnsbimi dnscaa dnstlsrpt \
      --blacklist $OUT_OF_SCOPE \
      -c dns.brute_threads=1000 \
         modules.dnsbrute.max_depth=3 \
      -om json subdomains \
      -o ~/bug_bounty/$COMPANY/bbot_scans/ \
      -n ${COMPANY}_subdomain_enum
+```
+
+> **DNS record modules note:** `dnscommonsrv` (SRV records), `dnsbimi` (BIMI), `dnscaa` (CAA), and `dnstlsrpt` (TLS-RPT) are **active** modules — they send DNS queries to target nameservers. They are safe (non-destructive) but not passive.
+
+---
+
+## Phase 1B: IP and Network Intelligence
+
+Understand the IP ownership and cloud infrastructure behind the target:
+
+```bash
+# ASN lookup + cloud tagging + IP neighbor discovery
+bbot -t $TARGET \
+     -m asn cloudcheck ipneighbor ip2location \
+     --blacklist $OUT_OF_SCOPE \
+     -om json \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_ip_intel
+```
+
+> **Scope warning for `asn`:** ASN lookup expands the target IP into a full CIDR range. If the target IP is hosted on AWS, Azure, or Cloudflare, this can produce thousands of IPs. Always review `IP_RANGE` events before proceeding and confirm the CIDR is owned by the target (check program scope).
+
+**IP intelligence findings:**
+```bash
+LATEST=$(ls -td ~/bug_bounty/$COMPANY/bbot_scans/*/ | head -1)
+
+# ASN info
+jq -r 'select(.type=="ASN") | .data' $LATEST/output.ndjson
+
+# IP ranges discovered
+jq -r 'select(.type=="IP_RANGE") | .data' $LATEST/output.ndjson
+
+# Cloud providers tagged
+jq -r 'select(.module=="cloudcheck") | select(.type=="FINDING") | .data' $LATEST/output.ndjson
+
+# IP neighbors (other hosts on same IPs)
+jq -r 'select(.module=="ipneighbor") | select(.type=="DNS_NAME") | .data' $LATEST/output.ndjson
 ```
 
 ---
@@ -51,7 +89,8 @@ bbot -t $TARGET \
 ```bash
 # Step 2: Port scan + HTTP probe all discovered subdomains
 bbot -t $TARGET \
-     -m portscan sslcert httpx robots securitytxt social oauth \
+     -m portscan fingerprintx sslcert httpx robots securitytxt social oauth \
+        ironsight wappalyzer \
      --blacklist $OUT_OF_SCOPE \
      -c modules.portscan.top_ports=1000 \
         modules.portscan.rate=300 \
@@ -60,6 +99,10 @@ bbot -t $TARGET \
      -o ~/bug_bounty/$COMPANY/bbot_scans/ \
      -n ${COMPANY}_port_web
 ```
+
+**`fingerprintx`:** Identifies service protocols on open ports (beyond HTTP/HTTPS). Detects SSH, FTP, SMTP, RDP, VNC, and 20+ other services without banner grabbing. Complements `portscan` and `sslcert`.
+
+**`wappalyzer`:** Technology fingerprinting via Wappalyzer rules DB. Runs alongside `ironsight` for better tech stack coverage.
 
 ---
 
@@ -153,6 +196,13 @@ bbot -t $TARGET \
 | `ironsight` | Yes | Low | Always — tech detect |
 | `gowitness` | Yes | Low | Visual survey |
 | `dnsbrute` | DNS Only | Medium | Always |
+| `dnscommonsrv` | DNS Only | Very Low | Always — SRV records |
+| `dnsbimi/caa/tlsrpt` | DNS Only | Very Low | Email infrastructure targets |
+| `asn` | No | Low | When CIDR ownership confirmed |
+| `cloudcheck` | No | Very Low | Always — cloud IP tagging |
+| `ipneighbor` | No | Low | Shared hosting environments |
+| `fingerprintx` | Yes | Low | Non-HTTP service identification |
+| `wappalyzer` | Yes | Low | Always — tech detect (pair with ironsight) |
 
 ---
 

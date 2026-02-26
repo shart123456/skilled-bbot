@@ -17,6 +17,72 @@ Complete reference for IP geolocation, WAF detection, technology fingerprinting,
 
 ---
 
+## asn
+
+**Description:** Performs ASN (Autonomous System Number) lookups for discovered IP addresses and expands ASN ranges into IP CIDR blocks. Useful for mapping the full IP space owned by a target organization.
+
+**Flags:** `passive`, `safe`
+**Watched Events:** `IP_ADDRESS`
+**Produced Events:** `ASN`, `IP_RANGE`
+
+**No API key required. No configuration options.**
+
+```bash
+bbot -t example.com -m asn
+```
+
+**Data Returned:**
+- ASN number and organization name
+- Associated CIDR ranges (IP_RANGE events)
+- Country and registry information
+
+> **Scope Warning:** The `asn` module can **massively expand your target surface**. If `example.com` resolves to an IP owned by AWS or Cloudflare, `asn` will produce IP_RANGE events covering millions of IPs. Always combine with `--blacklist` and careful scope review. The `speculate` internal module will then generate targets from these ranges.
+>
+> Best practice: use `asn` only when you have confirmed CIDR ownership via `whois` or program scope documentation.
+
+```bash
+# Combined with scope controls
+bbot -t 1.2.3.4 -m asn \
+     --blacklist 1.2.0.0/16 \
+     -n asn_lookup
+```
+
+---
+
+## cloudcheck
+
+**Description:** Tags discovered IP addresses with their cloud provider. Identifies whether an IP belongs to AWS, GCP, Azure, Cloudflare, Fastly, or other major cloud/CDN providers by cross-referencing published cloud IP ranges.
+
+**Flags:** `passive`, `safe`
+**Watched Events:** `IP_ADDRESS`
+**Produced Events:** `FINDING` (cloud provider tag)
+
+**No API key required. No configuration options.**
+
+```bash
+# cloudcheck runs automatically during most scans
+# Explicit invocation:
+bbot -t example.com -m cloudcheck
+```
+
+**Why it matters:**
+- Suppresses CDN false positives in port scan results — ports open on Cloudflare IPs aren't the target's attack surface
+- Identifies direct-to-origin IPs vs CDN-fronted IPs
+- Guides which IPs to port-scan vs skip
+- Works alongside `portscan` — cloudcheck events help filter portscan scope
+
+**Cloud Providers Detected:**
+- AWS (EC2, S3, CloudFront)
+- Google Cloud (GCE, Firebase, GKE)
+- Microsoft Azure
+- Cloudflare
+- Fastly
+- Akamai
+- DigitalOcean
+- Oracle Cloud
+
+---
+
 ## ip2location
 
 **Description:** Queries ip2location.io for geolocation data for discovered IP addresses. Returns city, region, country, ISP, coordinates, and autonomous system information.
@@ -177,6 +243,38 @@ bbot -t example.com -m httpx ironsight
 bbot -t example.com -m bevigil \
      -c modules.bevigil.api_key=KEY
 ```
+
+---
+
+## wappalyzer
+
+**Description:** Technology fingerprinting using the Wappalyzer rules database. Identifies web technologies, CMS platforms, frameworks, and libraries from HTTP responses by matching against Wappalyzer's extensive pattern library.
+
+**Flags:** `active`, `safe`, `web-basic`
+**Watched Events:** `HTTP_RESPONSE`
+**Produced Events:** `TECHNOLOGY`
+
+**No API key required. No configuration options.**
+
+```bash
+bbot -t example.com -m httpx wappalyzer
+```
+
+**Technologies Detected (same categories as Wappalyzer browser extension):**
+- Web servers (Apache, nginx, IIS, Caddy, LiteSpeed)
+- Frontend frameworks (React, Angular, Vue.js, jQuery, Bootstrap)
+- Backend frameworks (Django, Rails, Laravel, Express, ASP.NET)
+- CMS (WordPress, Drupal, Joomla, Ghost, Contentful)
+- E-commerce (Shopify, WooCommerce, Magento, BigCommerce)
+- JavaScript libraries with version detection
+- CDN / reverse proxy detection
+- Analytics and marketing tools
+- Security products (reCAPTCHA, hCaptcha, Cloudflare Bot Management)
+
+**Contrast with `ironsight`:**
+- `wappalyzer` uses the Wappalyzer rules database (community-maintained, ~1500+ technologies)
+- `ironsight` uses IronSight's proprietary detection engine
+- Running both provides better coverage: `bbot -t example.com -m httpx ironsight wappalyzer`
 
 ---
 

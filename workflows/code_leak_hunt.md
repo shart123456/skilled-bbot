@@ -22,7 +22,7 @@ metadata:
 
 Code leak hunting discovers publicly exposed source code, credentials, API keys, and internal infrastructure details through GitHub, GitLab, Postman, Docker, and mobile apps. Findings here often lead directly to critical vulnerabilities.
 
-**Modules Used:** github_org, github_codesearch, github_usersearch, github_workflows, gitlab_com, gitlab_onprem, postman, postman_download, git, gitdumper, dockerhub, docker_pull, trufflehog, code_repository, httpx
+**Modules Used:** github_org, github_codesearch, github_usersearch, github_workflows, gitlab_com, gitlab_onprem, postman, postman_download, git, gitdumper, dockerhub, docker_pull, trufflehog, code_repository, httpx, dehashed, credshed
 
 ---
 
@@ -115,6 +115,108 @@ bbot -t $TARGET \
      -o ~/bug_bounty/$COMPANY/bbot_scans/ \
      -n ${COMPANY}_docker
 ```
+
+---
+
+## Phase 6B: On-Premises GitLab Detection
+
+Many organizations run self-hosted GitLab instances that may be accessible from the internet:
+
+```bash
+# Detect self-hosted GitLab instances
+bbot -t $TARGET \
+     -m httpx gitlab_onprem \
+     -om json \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_gitlab_onprem
+```
+
+**What `gitlab_onprem` does:**
+- Watches `URL` and `HTTP_RESPONSE` events from `httpx`
+- Fingerprints responses for GitLab self-hosted indicators (meta tags, headers, `/users/sign_in` page)
+- Produces `FINDING` events for confirmed GitLab instances
+- May also identify public/private registration status
+
+**What to look for:**
+```bash
+LATEST=$(ls -td ~/bug_bounty/$COMPANY/bbot_scans/*/ | head -1)
+jq 'select(.module=="gitlab_onprem") | select(.type=="FINDING")' $LATEST/output.ndjson
+```
+
+**Follow-up manual checks:**
+```bash
+# Test registration open (user enumeration)
+curl -s https://gitlab.example.com/api/v4/users/1 | jq '.username'
+
+# Check for public repos
+curl -s "https://gitlab.example.com/api/v4/projects?visibility=public&per_page=20" | \
+     jq '.[].web_url'
+
+# Test sign-up available
+curl -sI "https://gitlab.example.com/users/sign_up" | grep "HTTP/"
+```
+
+---
+
+## Phase 7: Credential Database Search
+
+Search leaked credential databases for target employee credentials:
+
+### Option A: Dehashed (Paid API)
+
+```bash
+DEHASHED_EMAIL="your@email.com"
+DEHASHED_KEY="your_dehashed_api_key"
+
+# Search by domain
+bbot -t $TARGET \
+     -m dehashed \
+     -c modules.dehashed.username=$DEHASHED_EMAIL \
+        modules.dehashed.api_key=$DEHASHED_KEY \
+     -om json \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_dehashed
+```
+
+**Analyze dehashed results:**
+```bash
+LATEST=$(ls -td ~/bug_bounty/$COMPANY/bbot_scans/*/ | head -1)
+
+# All credential findings
+jq 'select(.module=="dehashed") | select(.type=="FINDING")' $LATEST/output.ndjson
+
+# Email/password pairs
+jq -r 'select(.module=="dehashed") | select(.type=="FINDING") | .data' \
+   $LATEST/output.ndjson | head -20
+```
+
+### Option B: Credshed (Self-Hosted)
+
+If you run a self-hosted Credshed instance with a credential database:
+
+```bash
+CREDSHED_URL="http://localhost:8080"
+CREDSHED_USER="admin"
+CREDSHED_PASS="yourpassword"
+
+bbot -t $TARGET \
+     -m credshed \
+     -c modules.credshed.url=$CREDSHED_URL \
+        modules.credshed.username=$CREDSHED_USER \
+        modules.credshed.password=$CREDSHED_PASS \
+     -om json \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_credshed
+```
+
+**Analyze credshed results:**
+```bash
+LATEST=$(ls -td ~/bug_bounty/$COMPANY/bbot_scans/*/ | head -1)
+jq 'select(.module=="credshed") | select(.type=="CREDENTIAL" or .type=="FINDING")' \
+   $LATEST/output.ndjson
+```
+
+> **See also:** `workflows/mobile_app_recon.md` — APK decompilation often surfaces hardcoded credentials that can be cross-referenced against leaked credential databases.
 
 ---
 

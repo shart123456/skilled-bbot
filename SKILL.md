@@ -3,14 +3,14 @@ name: bbot
 description: |-
   BBOT bug bounty reconnaissance skill. Executes intelligent BBOT scans that
   stay within program scope, respect rate limits, and configure modules based
-  on bug bounty program policies. Covers 117+ modules across DNS, port scanning,
-  web fuzzing, vulnerability scanning, cloud storage, and code repository discovery.
+  on bug bounty program policies. Covers 124 modules across DNS, port scanning,
+  web fuzzing, vulnerability scanning, cloud storage, mobile app recon, and code repository discovery.
 license: MIT
 compatibility: MONK TAO skills system, Claude Code
 metadata:
   author: shart123456
   usage: skill file for MONK TAO skills system
-  version: 0.1.0
+  version: 0.2.0
   related files: ""
   creation date: 2026-02-26
   last modified: 2026-02-26
@@ -34,7 +34,7 @@ metadata:
 - `"Run nuclei / dnsbrute / httpx / ffuf"` against a target
 
 ### Keywords That Trigger This Skill
-bbot, recon, reconnaissance, subdomain enumeration, dnsbrute, httpx, nuclei, ffuf, bug bounty, attack surface, s3 bucket, cloud enum, subdomain takeover, baddns, passive recon, portscan, crt.sh, sslcert, trufflehog
+bbot, recon, reconnaissance, subdomain enumeration, dnsbrute, httpx, nuclei, ffuf, bug bounty, attack surface, s3 bucket, cloud enum, subdomain takeover, baddns, passive recon, portscan, crt.sh, sslcert, trufflehog, mobile app, apk, jadx, decompile, google playstore, apkpure, bevigil, lightfuzz, parameter fuzzing, asn lookup, ip neighbor, zoomeye, dehashed, credshed, credential leak, gitlab, passivetotal, fullhunt, leakix, affiliates, wappalyzer, fingerprintx, cloudcheck
 
 ### Anti-Patterns (Do NOT activate for)
 - `"scan this PDF"` (document processing, not BBOT)
@@ -117,8 +117,13 @@ bbot, recon, reconnaissance, subdomain enumeration, dnsbrute, httpx, nuclei, ffu
 
 ### 8. code_leak_hunt.md
 **Purpose:** GitHub, GitLab, Postman, Trufflehog — discover leaked source code and hardcoded secrets
-**Triggers:** `"code leak"`, `"github secrets"`, `"trufflehog"`, `"postman secrets"`, `"leaked credentials"`
+**Triggers:** `"code leak"`, `"github secrets"`, `"trufflehog"`, `"postman secrets"`, `"leaked credentials"`, `"credential database"`, `"dehashed"`, `"on-prem gitlab"`
 **Instructions:** Complete step-by-step instructions for executing this workflow are here: `workflows/code_leak_hunt.md`
+
+### 9. mobile_app_recon.md
+**Purpose:** Discover Android APKs via Google Play Store, decompile with jadx, and perform mobile app OSINT with BeVigil
+**Triggers:** `"mobile app recon"`, `"APK analysis"`, `"decompile APK"`, `"Play Store"`, `"android app"`, `"jadx"`, `"mobile secrets"`, `"bevigil"`, `"apkpure"`
+**Instructions:** Complete step-by-step instructions for executing this workflow are here: `workflows/mobile_app_recon.md`
 
 ---
 
@@ -280,6 +285,6 @@ Metadata: {
 
 ---
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **BBOT Version:** 2.8.2
 **Last Updated:** 2026-02-26

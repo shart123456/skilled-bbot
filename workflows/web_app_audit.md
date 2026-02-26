@@ -200,6 +200,42 @@ bbot -t $TARGET \
 
 ---
 
+## Phase 7B: Lightweight Parameter Fuzzing
+
+Test discovered parameters for common injection vulnerabilities:
+
+```bash
+# Only if program allows active vulnerability testing
+# lightfuzz is flagged "aggressive"
+bbot -t $TARGET \
+     -m httpx paramminer_getparams lightfuzz \
+     --blacklist $BLACKLIST \
+     -c web_requests_per_second=5 \
+        modules.lightfuzz.severity=MEDIUM \
+     -om json \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_lightfuzz
+```
+
+**`lightfuzz` tests:** SQLi, XSS reflection, path traversal, SSTI, command injection
+
+```bash
+# Analyze lightfuzz findings
+LATEST=$(ls -td ~/bug_bounty/$COMPANY/bbot_scans/*/ | head -1)
+
+echo "=== LightFuzz Findings ==="
+jq 'select(.module=="lightfuzz") | select(.type=="FINDING" or .type=="VULNERABILITY")' \
+   $LATEST/output.ndjson
+
+# Separate by severity
+jq -r 'select(.module=="lightfuzz") |
+  select(.type=="VULNERABILITY") |
+  "\(.data.severity // "UNKNOWN"): \(.data.name // .data) @ \(.data.url // .data.host // "")"' \
+  $LATEST/output.ndjson | sort -u
+```
+
+---
+
 ## Phase 8: Authentication & Injection Checks
 
 ```bash
@@ -281,7 +317,7 @@ bbot -t $TARGET \
         gowitness \
         host_header url_manipulation bypass403 \
         paramminer_getparams paramminer_headers paramminer_cookies \
-        reflected_parameters \
+        reflected_parameters lightfuzz \
         iis_shortnames vhost \
         filedownload extractous \
      --blacklist $BLACKLIST \

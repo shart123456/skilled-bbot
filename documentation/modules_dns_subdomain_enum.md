@@ -17,6 +17,32 @@ Complete reference for all passive and active DNS/subdomain discovery modules in
 
 ---
 
+## affiliates
+
+**Source:** Discovered domain relationships
+
+**Flags:** `passive`, `safe`, `affiliates`
+**Watched Events:** `DNS_NAME`
+**Produced Events:** `DNS_NAME`
+
+**Description:** Discovers affiliate, partner, and related domains associated with the target. Identifies organizations that share infrastructure, SSL certificates, or DNS records with the target — revealing sibling companies and acquisition targets.
+
+> **Important distinction:** `affiliates` is both a **module name** and a **flag name** in BBOT.
+> - The **module** `affiliates` actively discovers related domains.
+> - The **flag** `-f affiliates` marks any module that produces results for domains outside the initial target scope. Using `-f affiliates` alone does not run this module — it enables out-of-scope result reporting globally.
+
+**No API key required. No configuration options.**
+
+```bash
+# Run the affiliates module (discovers related domains)
+bbot -t example.com -m affiliates
+
+# Enable affiliate scope expansion for all modules (different use case)
+bbot -t example.com -f subdomain-enum passive -f affiliates
+```
+
+---
+
 ## anubisdb
 
 **Source:** `jldc.me` subdomain database (free, no API key required)
@@ -650,6 +676,32 @@ bbot -t example.com -m wayback -c modules.wayback.urls=true
 
 ---
 
+## zoomeye
+
+**Source:** `zoomeye.hk` API (Chinese internet scanner)
+
+**Flags:** `passive`, `safe`, `subdomain-enum`
+**Watched Events:** `DNS_NAME`
+**Produced Events:** `DNS_NAME`
+
+**Description:** Queries ZoomEye — a Chinese internet-wide scanning platform similar to Shodan. Indexes internet-facing services globally with strong coverage of Asian infrastructure. Returns subdomains from its passive DNS database. Requires a paid API key.
+
+**Options:**
+| Option | Default | Description |
+|---|---|---|
+| `api_key` | `""` | ZoomEye API key (paid, zoomeye.hk) |
+
+```bash
+bbot -t example.com -m zoomeye -c modules.zoomeye.api_key=YOUR_KEY
+```
+
+**Notes:**
+- Particularly valuable for targets with global or Asia-Pacific infrastructure
+- Complementary to Shodan (different scan data, different coverage regions)
+- Free tier has very limited quota — paid tier required for practical use
+
+---
+
 ## Combined DNS Enumeration Commands
 
 ### Maximum Passive Coverage (No API Keys)
@@ -685,4 +737,18 @@ bbot -t example.com \
      -m dnsbrute dnsbrute_mutations \
      -c modules.dnsbrute.wordlist=/opt/wordlists/dns/subdomains-top1million-110000.txt \
      -n aggressive_brute
+```
+
+### Maximum Coverage (All Sources Including Paid)
+```bash
+bbot -t example.com \
+     -f subdomain-enum passive safe \
+     -m affiliates zoomeye \
+     -c modules.securitytrails.api_key=$ST_KEY \
+        modules.virustotal.api_key=$VT_KEY \
+        modules.chaos.api_key=$CHAOS_KEY \
+        modules.certspotter.api_key=$CS_KEY \
+        modules.shodan_dns.api_key=$SHODAN_KEY \
+        modules.zoomeye.api_key=$ZOOMEYE_KEY \
+     -n maximum_passive_coverage
 ```

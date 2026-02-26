@@ -53,6 +53,49 @@ jq 'select(.module=="azure_realm" or .module=="azure_tenant")' \
 
 ---
 
+## Phase 1B: Azure Blob Storage Deep Dive
+
+For targets with confirmed Azure usage (detected in Phase 1):
+
+```bash
+# Azure blob storage deep scan with permutations
+bbot -t $TARGET \
+     -m azure_realm azure_tenant bucket_microsoft \
+     -c modules.bucket_microsoft.permutations=true \
+     -om json web_report \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_azure_blob_deep
+```
+
+**Azure Blob Storage access tiers (what BBOT tests):**
+
+| Access Level | Container List | Blob Read | BBOT Severity |
+|---|---|---|---|
+| Private | No | No | Not reported |
+| Blob (blob) | No | Yes (if URL known) | MEDIUM |
+| Container (full public) | Yes | Yes | HIGH |
+
+**Manual verification after BBOT:**
+```bash
+ACCOUNT="companyaccount"
+CONTAINER="public"
+
+# Test container listing (HIGH finding)
+curl -s "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}?restype=container&comp=list" | \
+     python3 -m xml.dom.minidom
+
+# Test blob-level read (MEDIUM finding — need blob URL)
+curl -sI "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}/config.json"
+
+# Download a specific blob
+curl -s "https://${ACCOUNT}.blob.core.windows.net/${CONTAINER}/config.json"
+
+# List all containers in storage account
+curl -s "https://${ACCOUNT}.blob.core.windows.net/?comp=list" | python3 -m xml.dom.minidom
+```
+
+---
+
 ## Phase 2: Multi-Cloud Bucket Hunt (No Permutations)
 
 ```bash

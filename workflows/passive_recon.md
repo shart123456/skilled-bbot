@@ -22,7 +22,7 @@ metadata:
 
 Passive reconnaissance uses only third-party data sources — certificate transparency logs, DNS databases, API services, search engines — to map a target's attack surface without ever touching the target directly.
 
-**Modules Used:** anubisdb, bufferoverrun, crt, crt_db, dnsdumpster, hackertarget, myssl, otx, rapiddns, sitedossier, subdomaincenter, subdomainradar, urlscan, viewdns, wayback, certspotter, chaos, virustotal, securitytrails, shodan_dns, azure_realm, azure_tenant, emailformat, hunterio, skymem, pgp, github_org, postman
+**Modules Used:** anubisdb, bufferoverrun, crt, crt_db, dnsdumpster, hackertarget, myssl, otx, rapiddns, sitedossier, subdomaincenter, subdomainradar, urlscan, viewdns, wayback, certspotter, chaos, virustotal, securitytrails, shodan_dns, azure_realm, azure_tenant, emailformat, hunterio, skymem, pgp, github_org, postman, affiliates, zoomeye, c99, fullhunt, leakix, passivetotal, bevigil, trickest, digitorus
 
 ---
 
@@ -38,7 +38,7 @@ bbot -t $TARGET \
      -m anubisdb bufferoverrun crt crt_db \
         dnsdumpster hackertarget myssl otx \
         rapiddns sitedossier subdomaincenter \
-        urlscan viewdns wayback \
+        urlscan viewdns wayback affiliates \
      -om json subdomains emails \
      -o ~/bug_bounty/$COMPANY/bbot_scans/ \
      -n ${COMPANY}_passive_nokey
@@ -99,6 +99,29 @@ bbot -t $TARGET \
      -om json emails \
      -o ~/bug_bounty/$COMPANY/bbot_scans/ \
      -n ${COMPANY}_email_enum
+```
+
+---
+
+## Phase 5B: Paid Intelligence Sources
+
+Unlock maximum coverage with paid API keys:
+
+```bash
+bbot -t $TARGET \
+     -m c99 fullhunt leakix zoomeye passivetotal \
+        bevigil trickest digitorus affiliates \
+     -c modules.c99.api_key=$C99_KEY \
+        modules.fullhunt.api_key=$FULLHUNT_KEY \
+        modules.leakix.api_key=$LEAKIX_KEY \
+        modules.zoomeye.api_key=$ZOOMEYE_KEY \
+        modules.passivetotal.api_key=$PT_KEY \
+        modules.passivetotal.username=$PT_USER \
+        modules.bevigil.api_key=$BEVIGIL_KEY \
+        modules.trickest.api_key=$TRICKEST_KEY \
+     -om json subdomains \
+     -o ~/bug_bounty/$COMPANY/bbot_scans/ \
+     -n ${COMPANY}_paid_intel
 ```
 
 ---
@@ -188,6 +211,15 @@ cat $LATEST/output.ndjson | \
 | hunterio | Partial | Yes (free) | High |
 | github_codesearch | No | Yes (free) | Very High |
 | postman | No | Yes (free) | High |
+| affiliates | Yes | No | Medium |
+| zoomeye | No | Yes (paid) | High (APAC) |
+| c99 | No | Yes (paid) | High |
+| fullhunt | Partial | Yes (free) | High |
+| leakix | Partial | Yes (free) | High |
+| passivetotal | No | Yes (paid) | Very High |
+| bevigil | Partial | Yes (free) | Medium (mobile) |
+| trickest | No | Yes (paid) | High |
+| digitorus | Yes | No | Medium |
 
 ---
 
