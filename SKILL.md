@@ -285,6 +285,6 @@ Metadata: {
 
 ---
 
-**Version:** 1.1.0
+**Version:** 0.2.0
 **BBOT Version:** 2.8.2
 **Last Updated:** 2026-02-26

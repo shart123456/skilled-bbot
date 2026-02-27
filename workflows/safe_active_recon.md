@@ -6,8 +6,8 @@ compatibility: MONK TAO skills system, Claude Code
 metadata:
   author: shart123456
   usage: workflow file for MONK TAO skills system
-  version: 0.1.0
-  related files: ""
+  version: 0.2.0
+  related files: "modules_dns_subdomain_enum.md, modules_port_scanning.md, modules_web_scanning.md, bbot_technical_reference.md"
   creation date: 2026-02-26
   last modified: 2026-02-26
 ---

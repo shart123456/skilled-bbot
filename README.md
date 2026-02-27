@@ -22,7 +22,7 @@ Covers all 124 BBOT modules organized by category:
 ## Structure
 
 ```
-bbot/
+skilled-bbot/
 ├── SKILL.md                                  - Skill definition, triggers, workflow routing
 ├── configs/                                  - API key templates, custom preset YAMLs
 ├── data/                                     - Wordlists, target scope files
@@ -86,7 +86,7 @@ git clone git@github.com:shart123456/skilled-bbot.git
 **2. Place it in your Claude Code skills directory**
 
 ```bash
-mv claude-bbot-skill ~/.claude/skills/bbot
+mv skilled-bbot ~/.claude/skills/bbot
 ```
 
 **3. Verify Claude Code picks it up**
@@ -111,6 +111,8 @@ export POSTMAN_KEY="..."
 export WPSCAN_KEY="..."
 export BEVIGIL_KEY="..."           # BeVigil (mobile OSINT)
 export LEAKIX_KEY="..."            # LeakIX
+export CS_KEY="..."                # CertSpotter
+export OTX_KEY="..."               # AlienVault OTX
 
 # Paid keys
 export SHODAN_KEY="..."
@@ -132,7 +134,7 @@ Free API keys available at: GitHub, VirusTotal, Hunter.io, Chaos (chaos.projectd
 
 ```bash
 bbot --version
-# Should output: bbot 2.8.x
+# Should output: bbot 2.8.x (minimum required: 2.8.2)
 ```
 
 If not installed:

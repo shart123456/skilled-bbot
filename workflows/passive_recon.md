@@ -6,8 +6,8 @@ compatibility: MONK TAO skills system, Claude Code
 metadata:
   author: shart123456
   usage: workflow file for MONK TAO skills system
-  version: 0.1.0
-  related files: ""
+  version: 0.2.0
+  related files: "modules_dns_subdomain_enum.md, modules_email_credentials.md, modules_ip_intelligence.md, bbot_technical_reference.md"
   creation date: 2026-02-26
   last modified: 2026-02-26
 ---
@@ -103,7 +103,7 @@ bbot -t $TARGET \
 
 ---
 
-## Phase 5B: Paid Intelligence Sources
+## Phase 5: Paid Intelligence Sources
 
 Unlock maximum coverage with paid API keys:
 
@@ -126,7 +126,7 @@ bbot -t $TARGET \
 
 ---
 
-## Phase 5: Code Repository Intelligence
+## Phase 6: Code Repository Intelligence
 
 ```bash
 bbot -t $TARGET \
@@ -271,8 +271,8 @@ Query: "scope and technology for [TARGET]"
 
 ## Safety Checklist
 
-- [ ] No modules with `active` flag included
-- [ ] `--blacklist` not needed (passive sources filter themselves)
-- [ ] Rate limits respected (API services auto-throttle)
-- [ ] Output directory set outside public repos
-- [ ] API keys not hardcoded in scripts
+1. Confirm no modules with `active` flag are included
+2. Confirm `--blacklist` not needed (passive sources filter themselves)
+3. Confirm rate limits respected (API services auto-throttle)
+4. Confirm output directory is set outside public repos
+5. Confirm API keys are not hardcoded in scripts

@@ -1,0 +1,16 @@
+# Runtime scan artifacts
+cauldron/*
+\!cauldron/.gitkeep
+
+# Local scope/data files
+data/*.txt
+data/*.csv
+
+# Local config overrides with API keys
+configs/*.yml
+configs/*.yaml
+
+# OS / editor
+.DS_Store
+*.swp
+*~
